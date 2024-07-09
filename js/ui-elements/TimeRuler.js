@@ -108,4 +108,4 @@ function createTimeRuler(nodeMgr) {
   return timeRulerContainer;
 }
 
-  export { updateTimeRuler, createTimeRuler, updateFrameInfo, updateAllHandlersFrameInfo };
+export { updateTimeRuler, createTimeRuler, updateFrameInfo, updateAllHandlersFrameInfo };
