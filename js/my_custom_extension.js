@@ -2,10 +2,10 @@ import { app } from "../../scripts/app.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 import './utils/Sortable.min.js'; // Include the local Sortable.min.js
 import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE, SVG_SHOW_CURVES } from './utils/SVGConstants.js';
-import { style } from "./styles.js";
+// import { style } from "./styles.js";
 
 // Add CSS for the node
-document.head.appendChild(style);
+// document.head.appendChild(style);
 
 const nodeName = "jimmm.ai.TimelineUI";
 
@@ -494,4 +494,4 @@ class TimelineUI extends LiteGraph.LGraphNode {
     }
 }
 
-LiteGraph.registerNodeType("animation_timeline/TimelineUI", TimelineUI);
+// LiteGraph.registerNodeType("animation_timeline/TimelineUI", TimelineUI);

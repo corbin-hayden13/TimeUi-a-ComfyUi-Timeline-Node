@@ -2,6 +2,11 @@ import { app } from "../../scripts/app.js";
 import './utils/Sortable.min.js';
 import { makeNodeManager, out } from "./managers/NodeManager.js";
 
+const linkElem = document.createElement("link");
+linkElem.rel = "stylesheet";
+linkElem.href = "./timeline-styles.css";
+// document.head.appendChild(linkElem);
+
 
 function sendDataToBackend(image_timelines) {
     let data = {imageData: []};
