@@ -1,4 +1,6 @@
-function initializeDragAndResize() {
+import { scheduleHidePopup } from "../ui-elements/Popup.js";
+
+function _legacy_initializeDragAndResize() {
     let isDragging = false;
     let dragStartX;
     let handlerStartX;
@@ -74,14 +76,54 @@ function handleResizingRight(e, handler, resizeStartX, handlerStartWidth, timeli
 }
 
 function handleResizingLeft(e, handler, resizeStartX, handlerStartWidth, handlerStartX, timelineContainer, paddingSize) {
-    const dx = e.clientX - resizeStartX;
-    const newWidth = handlerStartWidth - dx;
-    const newLeft = handlerStartX + dx;
-    const maxRight = timelineContainer.clientWidth - handlerStartX - paddingSize;
-    if (newWidth > 0 && newLeft >= 0 && newLeft <= maxRight) {
-      handler.style.width = `${newWidth}px`;
-      handler.style.left = `${newLeft}px`;
-    }
- }
+  const dx = e.clientX - resizeStartX;
+  const newWidth = handlerStartWidth - dx;
+  const newLeft = handlerStartX + dx;
+  const maxRight = timelineContainer.clientWidth - handlerStartX - paddingSize;
+  if (newWidth > 0 && newLeft >= 0 && newLeft <= maxRight) {
+    handler.style.width = `${newWidth}px`;
+    handler.style.left = `${newLeft}px`;
+  }
+}
 
- export { initializeDragAndResize };
+function initializeDragAndResize(nodeMgr) {
+  nodeMgr.htmlElement.addEventListener('mousedown',  (e) => handleMouseDown(e, nodeMgr));
+  nodeMgr.htmlElement.addEventListener('mousemove',  (e) => handleMouseMove(e, nodeMgr));
+  nodeMgr.htmlElement.addEventListener('mouseup',    (e) => handleMouseUp  (e, nodeMgr));
+  nodeMgr.htmlElement.addEventListener('mouseleave', (e) => handleMouseUp  (e, nodeMgr));
+}
+
+function handleMouseDown(e, nodeMgr) {
+  const handler = e.target.closest('.timeline-handler');
+  if (!handler) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+
+  // this.hidePopup();
+  scheduleHidePopup(e, nodeMgr);
+
+  nodeMgr.selectHandler(handler);
+  nodeMgr.activeHandler = handler;
+  nodeMgr.startX = e.clientX;
+  nodeMgr.startLeft = handler.offsetLeft;
+  nodeMgr.startWidth = handler.offsetWidth;
+
+  if (e.target.classList.contains('resize-handle-left')) {
+      nodeMgr.isResizingLeft = true;
+      document.body.style.cursor = 'col-resize';
+  } else if (e.target.classList.contains('resize-handle-right')) {
+      nodeMgr.isResizingRight = true;
+      document.body.style.cursor = 'col-resize';
+  } else if (e.target.classList.contains('drag-area') ||
+      e.target.classList.contains('minimalistic-info') ||
+      (e.target.closest('.handler-info') && !e.target.classList.contains('frame-info-input'))) {
+      nodeMgr.isDragging = true;
+      document.body.style.cursor = 'grabbing';
+  }
+
+  handler.classList.add('active');
+
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+export { initializeDragAndResize };

@@ -108,4 +108,70 @@ function createTimeRuler(nodeMgr) {
   return timeRulerContainer;
 }
 
-export { updateTimeRuler, createTimeRuler, updateFrameInfo, updateAllHandlersFrameInfo };
+class TimeRuler {
+  constructor(options = {}) {
+      this.element = this.createElement();
+      this.updateTimeRuler(options);
+  }
+
+  createElement() {
+      const timeRulerContainer = document.createElement("div");
+      timeRulerContainer.className = "time-ruler-container";
+
+      const buttons = [SVG_SHOW_CURVES, SVG_SHOW_CURVES].map(svg => {  // Why two curve buttons?
+          const button = document.createElement("button");
+          button.className = "btn new-function-button";
+          button.innerHTML = svg;
+          button.addEventListener("click", () => console.log("New Function clicked"));
+          return button;
+      });
+
+      buttons.forEach(button => timeRulerContainer.appendChild(button));
+
+      const timeRuler = document.createElement("div");
+      timeRuler.className = "time-ruler";
+      timeRulerContainer.appendChild(timeRuler);
+
+      const rearrangeHandle = document.createElement("div");
+      rearrangeHandle.className = "same-space-handle";
+      timeRulerContainer.appendChild(rearrangeHandle);
+
+      return timeRulerContainer;
+  }
+
+  updateTimeRuler(options) {
+      const { number_animation_frames, frames_per_second, time_format } = options;
+      const timeRuler = this.element.querySelector('.time-ruler');
+      if (!timeRuler) return;
+
+      const totalMarkers = time_format === "Seconds" ? Math.ceil(number_animation_frames / frames_per_second) * 10 : number_animation_frames;
+      timeRuler.innerHTML = '';
+
+      for (let i = 0; i <= totalMarkers; i++) {
+          const timeMarker = document.createElement("div");
+          timeMarker.className = "time-marker";
+          timeMarker.style.left = `${(i / totalMarkers) * 100}%`;
+
+          if (i % 10 === 0) {
+              timeMarker.classList.add("big-tick");
+              timeMarker.innerHTML = `<span>${time_format === "Seconds" ? i / 10 : i} ${time_format === "Seconds" ? 's' : ''}</span>`;
+          } else if (i % 5 === 0) {
+              timeMarker.classList.add("medium-tick");
+          } else {
+              timeMarker.classList.add("small-tick");
+          }
+
+          timeRuler.appendChild(timeMarker);
+      }
+
+      if (time_format === "Frames") {
+          const totalFramesMarker = document.createElement("div");
+          totalFramesMarker.className = "time-marker big-tick";
+          totalFramesMarker.style.left = `100%`;
+          totalFramesMarker.innerHTML = `<span>${number_animation_frames}</span>`;
+          timeRuler.appendChild(totalFramesMarker);
+      }
+  }
+}
+
+export { updateTimeRuler, createTimeRuler, updateFrameInfo, updateAllHandlersFrameInfo, TimeRuler };

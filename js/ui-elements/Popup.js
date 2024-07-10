@@ -1,6 +1,6 @@
 import { SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME } from '../utils/index.js';
 
-export class Popup {
+class Popup {
     constructor() {
         this.element = this.createElement();
         this.isVisible = false;
@@ -149,3 +149,21 @@ export class Popup {
         this.callbacks = callbacks;
     }
 }
+
+function scheduleHidePopup(event, nodeMgr, timeoutInMiliseconds=50) {
+    clearTimeout(nodeMgr.popupCloseTimeout);
+    nodeMgr.popupCloseTimeout = setTimeout(() => {
+        if (nodeMgr.isMouseOverPopup && nodeMgr.isMouseOverHandler(event)) {
+            hidePopup(nodeMgr);
+        }
+    }, timeoutInMiliseconds);
+}
+
+function hidePopup(nodeMgr) {
+    if (nodeMgr.popup.isvisible) {
+        nodeMgr.popup.hide();
+        nodeMgr.currentPopupHandler = null;
+    }
+}
+
+export { Popup, scheduleHidePopup };
