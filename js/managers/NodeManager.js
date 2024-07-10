@@ -10,16 +10,13 @@ import { out, uuid } from "../utils/MiscUtils.js";
 let docListenersAdded = false;
 
 /**
- * this == nodeStorage.get(nodeUID) only because the object persists within nodeStorage
+ * Gets bound to the NodeManager instance so `this` works here
+ * @param {*} widget 
  */
-function onWidgetChange(widget, nodeUID) {
-  let realNode = nodeStorage.get(nodeUID);
-  // realNode.properties[widget.name] = widget.value;
+function onWidgetChange(widget) {
   this.properties[widget.name] = widget.value;
 
-  console.log(`nodeStorage(${nodeUID}).properties[${widget.name}] ${realNode.properties[widget.name] === this.properties[widget.name] ? 'equals' : 'does not equal'} this.properties[${widget.name}]`);
-  
-  if (realNode.timeRulerContainer) {
+  if (this.timeRulerContainer) {
     const timeRuler = this.timeRulerContainer.querySelector('.time-ruler');
     if (timeRuler) {
         updateTimeRuler(this, timeRuler);
@@ -109,7 +106,7 @@ class NodeManager {
     
       // Bind onWidgetChange function to widget change events
       this.node.widgets.forEach(widget => {
-        widget.callback = onWidgetChange.bind(this, widget, this.uID);
+        widget.callback = onWidgetChange.bind(this, widget);
       });
     }
 

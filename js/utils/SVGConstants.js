@@ -15,22 +15,10 @@ const SVG_REMOVE_ROW = `
 </svg>`;
 
 const SVG_ADD_TIMEFRAME = `
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-images">
-  <path d="M18 22H4a2 2 0 0 1-2-2V6"/>
-  <path d="m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18"/>
-  <circle cx="12" cy="8" r="2"/>
-  <rect width="16" height="16" x="6" y="2" rx="2"/>
-</svg>`;
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>`;
 
 const SVG_REMOVE_TIMEFRAME = `
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="lucide lucide-image-off">
-  <line x1="2" x2="22" y1="2" y2="22"/>
-  <path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/>
-  <line x1="13.5" x2="6" y1="13.5" y2="21"/>
-  <line x1="18" x2="21" y1="12" y2="15"/>
-  <path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"/>
-  <path d="M21 15V5a2 2 0 0 0-2-2H9"/>
-</svg>`;
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-minus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/></svg>`;
 
 const SVG_UPLOAD_IMAGE = `
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="lucide lucide-image-up">

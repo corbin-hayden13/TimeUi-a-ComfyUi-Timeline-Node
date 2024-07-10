@@ -1,7 +1,7 @@
 import { app } from "../../scripts/app.js";
-import './utils/Sortable.min.js';
 import { makeNodeManager } from "./managers/NodeManager.js";
-import { loadCSS } from "./utils/MiscUtils.js";
+import { loadCSS } from "./utils/index.js";
+import "./utils/Sortable.min.js";
 
 function sendDataToBackend(image_timelines) {
     let data = {imageData: []};
