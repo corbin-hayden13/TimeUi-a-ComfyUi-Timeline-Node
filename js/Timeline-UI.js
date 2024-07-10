@@ -1,7 +1,7 @@
 import { app } from "../../scripts/app.js";
 import './utils/Sortable.min.js';
-import { makeNodeManager, out } from "./managers/NodeManager.js";
-
+import { makeNodeManager } from "./managers/NodeManager.js";
+import { loadCSS } from "./utils/MiscUtils.js";
 
 function sendDataToBackend(image_timelines) {
     let data = {imageData: []};
@@ -68,5 +68,5 @@ const node = {
   },
 };
 
-
+loadCSS();
 app.registerExtension(node);

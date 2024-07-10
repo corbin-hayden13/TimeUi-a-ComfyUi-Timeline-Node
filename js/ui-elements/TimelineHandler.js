@@ -13,6 +13,7 @@ function addImageRow(nodeMgr) {
   nodeMgr.initializeSortable(); // Re-initialize Sortable to include new row
   initializeDragAndResize(); // Re-initialize custom drag and resize for new elements
   updateFrameInfo(nodeMgr, newRow.querySelector(".timeline-handler"));
+  nodeMgr.addOutput();
 }
 
 function renumberImageRows(nodeMgr) {
@@ -34,6 +35,7 @@ function removeImageRow(nodeMgr, button) {
     }
 
   nodeMgr.updateNodeHeight(false);
+  nodeMgr.removeOutput();
 }
 
 function generateRowHTML(currentIndex) {

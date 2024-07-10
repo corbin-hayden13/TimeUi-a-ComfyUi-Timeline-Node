@@ -40,6 +40,8 @@ class TimelineUI:
     def handle_timeline(self, model=None, *args, **kwargs):
         print(f"args={args}")
         print(f"kwargs={kwargs}")
+        # Hoping I can just return a tuple(list) and they'll go to the outputs because they exist on the node technically.
+        return_list = [model]
         """ Handle lack of required dependencies here because all modules have to be imported by comfyui before finding them """
         dependencies = load_dependencies(node_dependencies, location="handle_timeline")
         if dependencies is None:
@@ -48,7 +50,7 @@ class TimelineUI:
 
         IPAdapterAdvanced, _, CreateFadeMaskAdvanced = dependencies
 
-        return (model,)
+        return tuple(return_list)
 
     def IS_CHANGED(id):
         return float("NaN")

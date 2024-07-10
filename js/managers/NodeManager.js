@@ -1,52 +1,13 @@
-import { createTimeRuler, updateTimeRuler, updateAllHandlersFrameInfo } from "../ui-elements/TimeRuler.js";
-import { addImageRow, renumberImageRows, removeImageRow } from "../ui-elements/TimelineHandler.js";
+import { createTimeRuler, updateTimeRuler, updateAllHandlersFrameInfo, addImageRow, renumberImageRows, removeImageRow, get_position_style } from "../ui-elements/index.js";
 import { initializeDragAndResize } from "../utils/EventListeners.js";
 import { ObjectStore } from "./ObjectStore.js";
 import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
 import { ComfyWidgets } from "../../../scripts/widgets.js";
-
-const createUUIDGenerator = () => {
-  let currUUID = 0;
-  return () => currUUID++;
-};
-
-const uuid = createUUIDGenerator();
+import { out, uuid } from "../utils/MiscUtils.js";
 
 // We don't need to add the docListeners more than once, so this flag stops multiple adds
 let docListenersAdded = false;
-
-export const out = (message) => {
-    console.log(`Timeline-UI: ${message}`);
-};
-
-function get_position_style(ctx, widget_width, y, node_height, rowHeight) {
-  const MARGIN = 8;
-
-/**
- * Create a transform that deals with all the scrolling and zooming
- * This use of logarithms appears to be the most stable method to handle zooming
-*/
-  const elRect = ctx.canvas.getBoundingClientRect();
-  const scaleFactor = ctx.getTransform().a;  // Scale: Zoomed in=[0.1, 1), Normal=1, Zoomed out=(1, 10]
-  const scaledMargin = (1 + Math.log(MARGIN) / Math.log(2)) * (1 + Math.log10(MARGIN)) * (1 + (Math.log10(scaleFactor)));
-  const transform = new DOMMatrix()
-      .scaleSelf(elRect.width / ctx.canvas.width, elRect.height / ctx.canvas.height)
-      .multiplySelf(ctx.getTransform())
-      .translateSelf(scaledMargin, scaledMargin + y);
-
-  return {
-      transformOrigin: '0 0',
-      transform: transform.toString(),
-      left: `${scaledMargin}px`, 
-      top: `${scaledMargin}px`,
-      position: "absolute",
-      maxWidth: `${widget_width - scaledMargin*4}px`,
-      maxHeight: `${rowHeight}px`,    // we're assuming we have the whole height of the node
-      width: `${widget_width - scaledMargin*4}px`,
-      height: `${rowHeight}px`,
-  }
-}
 
 /**
  * this == nodeStorage.get(nodeUID) only because the object persists within nodeStorage
@@ -66,9 +27,9 @@ function onWidgetChange(widget, nodeUID) {
     } else {
         console.error("Time ruler element not found!");
     }
-} else {
-    console.error("Time ruler container not found!");
-}
+  } else {
+      console.error("Time ruler container not found!");
+  }
 }
 
 class NodeManager {
@@ -150,6 +111,24 @@ class NodeManager {
       this.node.widgets.forEach(widget => {
         widget.callback = onWidgetChange.bind(this, widget, this.uID);
       });
+    }
+
+    addOutput() {
+      if (this.node) {
+        this.node.addOutput("mask", "MASK");
+        this.node.setDirtyCanvas(true, true);
+      } else {
+        out("this.node is undefined in NodeManager.addOutput()");
+      }
+    }
+
+    removeOutput() {
+      if (this.node) {
+        this.node.removeOutput(this.node.outputs.length - 1);
+        this.node.setDirtyCanvas(true, true);
+      } else {
+        out("this.node is undefined in NodeManager.removeOutput()");
+      }
     }
 
     createImagesContainer() {
