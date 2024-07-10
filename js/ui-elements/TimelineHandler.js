@@ -11,7 +11,7 @@ function addImageRow(nodeMgr) {
   newRow.innerHTML = generateRowHTML(currentIndex);
   nodeMgr.htmlElement.appendChild(newRow);
   nodeMgr.initializeSortable(); // Re-initialize Sortable to include new row
-  initializeDragAndResize(); // Re-initialize custom drag and resize for new elements
+  initializeDragAndResize(nodeMgr); // Re-initialize custom drag and resize for new elements
   updateFrameInfo(nodeMgr, newRow.querySelector(".timeline-handler"));
   nodeMgr.addOutput();
 }

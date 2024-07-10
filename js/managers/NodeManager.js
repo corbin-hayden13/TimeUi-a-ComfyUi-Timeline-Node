@@ -38,7 +38,6 @@ class NodeManager {
 
     // Setting NodeManager member variables
     this.uID = uuid();
-    this.node.jimmmm_ai_node_uID = this.uID;
     this.properties = {
       ipadapter_preset: "LIGHT - SD1.5 only (low strength)",
       video_width: 512,
@@ -82,6 +81,7 @@ class NodeManager {
 
     // Operating on the node
     this.node = node;
+    this.node.jimmmm_ai_node_uID = this.uID;
     this.node.serialize_widgets = serialize_widgets;
     this.node.size = [size[0], this.baseHeight + this.rowHeight];
     this.node.color = color;
@@ -165,9 +165,9 @@ class NodeManager {
 
   // Only called in constructor, no need to bind
   appendHTMLToBody() {
-    this.htmlElement.appendChild(this.timeRuler);
-    document.appendChild(this.htmlElement);
-    document.appendChild(this.popup.element);
+    this.htmlElement.appendChild(this.timeRuler.element);
+    document.body.appendChild(this.htmlElement);
+    document.body.appendChild(this.popup.element);
   }
 
   addTimelineHandlerRow() {
