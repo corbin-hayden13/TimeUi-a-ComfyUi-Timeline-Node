@@ -88,9 +88,9 @@ function handleResizingLeft(e, handler, resizeStartX, handlerStartWidth, handler
 
 function initializeDragAndResize(nodeMgr) {
   nodeMgr.htmlElement.addEventListener('mousedown',  (e) => handleMouseDown(e, nodeMgr));
-  nodeMgr.htmlElement.addEventListener('mousemove',  (e) => handleMouseMove(e, nodeMgr));
-  nodeMgr.htmlElement.addEventListener('mouseup',    (e) => handleMouseUp  (e, nodeMgr));
-  nodeMgr.htmlElement.addEventListener('mouseleave', (e) => handleMouseUp  (e, nodeMgr));
+  // TODO: nodeMgr.htmlElement.addEventListener('mousemove',  (e) => handleMouseMove(e, nodeMgr));
+  // TODO: nodeMgr.htmlElement.addEventListener('mouseup',    (e) => handleMouseUp  (e, nodeMgr));
+  // TODO: nodeMgr.htmlElement.addEventListener('mouseleave', (e) => handleMouseUp  (e, nodeMgr));
 }
 
 function handleMouseDown(e, nodeMgr) {
@@ -98,7 +98,6 @@ function handleMouseDown(e, nodeMgr) {
   if (!handler) return;
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
 
-  // this.hidePopup();
   scheduleHidePopup(e, nodeMgr);
 
   nodeMgr.selectHandler(handler);
@@ -108,16 +107,16 @@ function handleMouseDown(e, nodeMgr) {
   nodeMgr.startWidth = handler.offsetWidth;
 
   if (e.target.classList.contains('resize-handle-left')) {
-      nodeMgr.isResizingLeft = true;
-      document.body.style.cursor = 'col-resize';
+    nodeMgr.isResizingLeft = true;
+    document.body.style.cursor = 'col-resize';
   } else if (e.target.classList.contains('resize-handle-right')) {
-      nodeMgr.isResizingRight = true;
-      document.body.style.cursor = 'col-resize';
+    nodeMgr.isResizingRight = true;
+    document.body.style.cursor = 'col-resize';
   } else if (e.target.classList.contains('drag-area') ||
-      e.target.classList.contains('minimalistic-info') ||
-      (e.target.closest('.handler-info') && !e.target.classList.contains('frame-info-input'))) {
-      nodeMgr.isDragging = true;
-      document.body.style.cursor = 'grabbing';
+    e.target.classList.contains('minimalistic-info') ||
+    (e.target.closest('.handler-info') && !e.target.classList.contains('frame-info-input'))) {
+    nodeMgr.isDragging = true;
+    document.body.style.cursor = 'grabbing';
   }
 
   handler.classList.add('active');
@@ -126,4 +125,26 @@ function handleMouseDown(e, nodeMgr) {
   e.stopPropagation();
 }
 
-export { initializeDragAndResize };
+function setupInputEventListeners(container, isPopup=false) {
+  const inputs = container.querySelectorAll('input[type="number"]');
+  inputs.forEach(input => {
+    const setupInput = (input) => {
+      input.oninput = (e) => {
+        // TODO: this.handleInputChange(input);
+        e.stopPropagation();
+      };
+      input.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          // DEPRECATED: this.handleInputBlur(input);
+          input.blur();
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      };
+    };
+
+    setupInput(input);
+  });
+}
+
+export { initializeDragAndResize, setupInputEventListeners };

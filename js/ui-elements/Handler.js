@@ -1,12 +1,13 @@
 // Handler.js
-import { SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, out } from '../utils/index.js';
+import { SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, out, scheduleHidePopup } from '../utils/index.js';
 
 export class Handler {
-    constructor(options = {}) {
-        out("Creating new Handler");
+    constructor(nodeMgr, options = {}) {
+        this.nodeMgr = nodeMgr;
+
         this.defaultHandlerWidth = options.defaultHandlerWidth || 200;
+        this.handlerThreshold = options.handlerThreshold || 150;
         this.element = this.createElement();
-        out("Handler element created:", this.element);
         this.setupEventListeners();
     }
 
@@ -118,5 +119,34 @@ export class Handler {
     setCallbacks(callbacks) {
         this.onInputChange = callbacks.onInputChange;
         this.onInputBlur = callbacks.onInputBlur;
+    }
+
+    setupHandlerEventListeners() {
+        this.element.addEventListener('mouseenter', (event) => this.mouseEntersHandler(event));
+        this.element.addEventListener('mouseleave', (event) => this.mouseLeavesHandler(event));
+        this.setupInputEventListeners(handler);
+    }
+
+    mouseEntersHandler(event) {
+        clearTimeout(this.nodeMgr.popupCloseTimeout);
+        if (this.element.offsetWidth < this.handlerThreshold) {
+            this.nodeMgr.showPopup(event, this.element);
+        }
+    }
+
+    mouseLeavesHandler(event) {
+        if (!this.nodeMgr.isMouseInPopupOrTolerance(event)) {
+            scheduleHidePopup(event, this.nodeMgr);
+        }
+    }
+
+    calculateNewHandlerPosition(handlerElems) {
+        let newLeft = 0;
+        if (handlerElems.length > 0) {
+            const lastHandler = handlerElems[handlerElems.length - 1];
+            newLeft = lastHandler.offsetLeft + lastHandler.offsetWidth;
+        }
+        const maxLeft = handlerElems[0].closest('.timeline').clientWidth - this.defaultHandlerWidth;
+        return Math.min(newLeft, maxLeft);
     }
 }

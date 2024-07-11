@@ -89,7 +89,7 @@ class Popup {
         });
     }
 
-    show(handler, position) {
+    show(handlerElem, position) {
         this.isVisible = true;
         this.currentHandler = handler;
         this.updateContent(handler);

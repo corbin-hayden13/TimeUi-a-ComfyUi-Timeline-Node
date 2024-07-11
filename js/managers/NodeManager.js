@@ -1,11 +1,11 @@
-import { updateAllHandlersFrameInfo, addImageRow, renumberImageRows, removeImageRow, get_position_style } from "../ui-elements/index.js";
-import { Popup, TimeRuler } from "../ui-elements/index.js";
+import { updateAllHandlersFrameInfo, addImageRow, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup } from "../ui-elements/index.js";
+import { Popup, TimeRuler, Handler } from "../ui-elements/index.js";
 import { initializeDragAndResize } from "../utils/EventListeners.js";
 import { ObjectStore } from "./ObjectStore.js";
 import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
 import { ComfyWidgets } from "../../../scripts/widgets.js";
-import { out, uuid } from "../utils/MiscUtils.js";
+import { out, uuid, debounce, safeSetValue } from "../utils/MiscUtils.js";
 
 // We don't need to add the docListeners more than once, so this flag stops multiple adds
 let docListenersAdded = false;
@@ -269,6 +269,89 @@ class NodeManager {
       this.selectedHandler = handler;
       this.selectedHandler.classList.add('active');
     }
+  }
+
+  addHandler(handler) {
+    const timeline = handler.closest('.timeline');
+    const handlers = Array.from(timeline.querySelectorAll('.timeline-handler'));
+
+    if (handlers.length >= this.maxHandlers) {
+      out("Maximum number of handlers reached", "warn");
+      return;
+    }
+
+    const newHandler = new Handler({ defaultHandlerWidth: this.defaultHandlerWidth, handlerThreshold: this.handlerThreshold });
+    const newLeft = newHandler.calculateNewHandlerPosition(handlers);
+    newHandler.element.style.left = `${newLeft}px`;
+    timeline.appendChild(newHandler.element);
+
+    // TODO: this.setupHandlerEventListeners(newHandler.element);
+    // TODO: this.updateAllHandlersFrameInfo();
+    // TODO: this.renumberAllHandlers();
+    // TODO: this.selectHandler(newHandler.element);
+  }
+
+  handleInputChange(input, timeoutInMiliseconds=50) {
+    if (!input) {
+      console.warn('Input is null in handleInputChange');
+      return;
+    }
+
+    const updateHandler = debounce(() => {
+      const handler = input.closest('.timeline-handler') || this.currentHandler;
+      if (!handler) {
+        out('Handler not found in handleInputChange', "warn");
+        return;
+      }
+      let value = parseFloat(input.value);
+      if (isNaN(value)) {
+        value = parseFloat(input.min) || 0;
+      }
+
+      value = Math.max(parseFloat(input.min) || 0, Math.min(value, this.properties.number_animation_frames));
+      safeSetValue(input, value);
+
+      // TODO: this.updateHandlerFromInput(input, value, handler === this.currentHandler);
+    }, timeoutInMiliseconds);
+
+    updateHandler();
+  }
+
+  /** Popup methods */
+  showPopup(event, handlerElem) {
+    if (this.currentPopupHandler !== handlerElem) {
+      scheduleHidePopup(event, this);
+    }
+
+    const rect = handlerElem.getBoundingClientRect();
+      const position = {
+        left: rect.left + (rect.width / 2),
+        top: rect.top - this.popupBuffer
+      };
+      this.popup.show(handlerElem, position);
+      this.currentPopupHandler = handlerElem;
+  }
+
+  isMouseInPopupOrTolerance(e) {
+    if (!this.popup || !this.currentHandler) return false;
+
+    const popupRect = this.popup.element.getBoundingClientRect();
+    const handlerRect = this.currentHandler.getBoundingClientRect();
+
+    const toleranceRect = {
+      left: Math.min(Math.min(popupRect.left, handlerRect.left) - this.popupTolerance, Math.min(toleranceRect.left, handlerRect.left - this.popupTolerance)),
+      right: Math.max(Math.max(popupRect.right, handlerRect.right) + this.popupTolerance, Math.max(toleranceRect.right, handlerRect.right + this.popupTolerance)),
+      top: Math.min(popupRect.top, handlerRect.top) - this.popupTolerance,
+      bottom: Math.max(popupRect.bottom, handlerRect.bottom) + this.popupTolerance
+    };
+
+    const middleY = (handlerRect.top + popupRect.bottom) / 2;
+    
+    if (e.clientY < middleY) toleranceRect.bottom = Math.max(toleranceRect.bottom, middleY + this.popupTolerance);
+    else toleranceRect.top = Math.min(toleranceRect.top, middleY - this.popupTolerance);
+
+    return e.clientX >= toleranceRect.left && e.clientX <= toleranceRect.right &&
+           e.clientY >= toleranceRect.top && e.clientY <= toleranceRect.bottom;
   }
 }
 
