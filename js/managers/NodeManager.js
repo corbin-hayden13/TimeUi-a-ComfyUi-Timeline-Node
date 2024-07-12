@@ -1,5 +1,5 @@
-import { updateAllHandlersFrameInfo, addImageRow, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup } from "../ui-elements/index.js";
-import { Popup, TimeRuler, Handler } from "../ui-elements/index.js";
+import { updateAllHandlersFrameInfo, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup } from "../ui-elements/index.js";
+import { Popup, TimeRuler, Handler, ImageRow } from "../ui-elements/index.js";
 import { initializeDragAndResize } from "../utils/EventListeners.js";
 import { ObjectStore } from "./ObjectStore.js";
 import { app } from "../../../scripts/app.js";
@@ -48,6 +48,7 @@ class NodeManager {
       time_format: "Frames",
       imageTimelineInfo: {},
     }
+    this.handlers = [];
 
     // Setting HTML containers
     this.htmlElement = $el("div.timeline-container", { 
@@ -163,6 +164,34 @@ class NodeManager {
     this.node.onRemoved = function() { timelineWidget.inputEl.remove(); };
   }
 
+  // TODO: Finish addImageRow
+  addImageRow() {
+    const newRow = new ImageRow({ rowIndex: this.htmlElement.querySelectorAll(".timeline-row").length + 1 });
+    const handler = newRow.addHandler({ defaultHandlerWidth: this.defaultHandlerWidth });
+    
+    if (!handler || !handler.element || !handler.element.style) {
+      out(`Problem in NodeManager.addImageRow - handler=${handler} handler.element=${handler.element} handler.element.style=${handler.element.style}`, "error");
+      return;
+    }
+
+    this.handlers.push({row: newRow, handler});
+    this.htmlElement.appendChild(newRow.element);
+
+    // TODOa: this.initializeHandler(handler.element);
+    
+    this.updateNodeHeight(true);
+    this.initializeSortable();
+    initializeDragAndResize(this);
+    
+    // TODOa: this.updateFrameInfo(handler.element);
+    // TODOa: this.renumberAllHandlers();
+    updateAllHandlersFrameInfo(this);
+  }
+
+  addHandler() {
+
+  }
+
   // Only called in constructor, no need to bind
   appendHTMLToBody() {
     this.htmlElement.appendChild(this.timeRuler.element);
@@ -171,14 +200,14 @@ class NodeManager {
   }
 
   addTimelineHandlerRow() {
-    addImageRow(this);
+    this.addImageRow();
   }
 
   /** Event Listeners */
   setupEventListeners() {
     this.htmlElement.addEventListener("click", (event) => {
       if (event.target.closest(".add-row")) {
-        addImageRow(this);
+        this.addImageRow();
       } else if (event.target.closest(".remove-row")) {
         removeImageRow(this, event.target);
       } else if (event.target.closest(".image-input")) {
@@ -271,6 +300,7 @@ class NodeManager {
     }
   }
 
+  // TODO: Finish addHandler
   addHandler(handler) {
     const timeline = handler.closest('.timeline');
     const handlers = Array.from(timeline.querySelectorAll('.timeline-handler'));
@@ -285,10 +315,10 @@ class NodeManager {
     newHandler.element.style.left = `${newLeft}px`;
     timeline.appendChild(newHandler.element);
 
-    // TODO: this.setupHandlerEventListeners(newHandler.element);
-    // TODO: this.updateAllHandlersFrameInfo();
-    // TODO: this.renumberAllHandlers();
-    // TODO: this.selectHandler(newHandler.element);
+    // TODOa: this.setupHandlerEventListeners(newHandler.element);
+    // TODOa: this.updateAllHandlersFrameInfo();
+    // TODOa: this.renumberAllHandlers();
+    // TODOa: this.selectHandler(newHandler.element);
   }
 
   handleInputChange(input, timeoutInMiliseconds=50) {

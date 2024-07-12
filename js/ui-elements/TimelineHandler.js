@@ -1,8 +1,10 @@
 import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE } from "../utils/SVGConstants.js";
 import { updateFrameInfo } from "./TimeRuler.js";
+import { ImageRow } from "./ImageRow.js";
 import { initializeDragAndResize } from "../utils/EventListeners.js";
 
-function addImageRow(nodeMgr) {
+// TODO: Refactor
+function _legacy_addImageRow(nodeMgr) {
   nodeMgr.updateNodeHeight();
   const newRow = document.createElement("section");
   const currentIndex = nodeMgr.htmlElement.querySelectorAll(".timeline-row").length + 1;
@@ -68,4 +70,4 @@ function generateRowHTML(currentIndex) {
   `;
 }
 
-export { addImageRow, renumberImageRows, removeImageRow, generateRowHTML };
+export { renumberImageRows, removeImageRow, generateRowHTML };

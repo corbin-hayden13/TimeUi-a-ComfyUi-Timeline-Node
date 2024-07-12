@@ -3,4 +3,4 @@ export { updateTimeRuler, createTimeRuler, updateFrameInfo, updateAllHandlersFra
 export { get_position_style } from "./ElementUtils.js";
 export { ImageRow } from "./ImageRow.js";
 export { Popup } from "./Popup.js";
-export { Handler } from "./Handler.js";
+export { Handler, handlerIDToIndex } from "./Handler.js";
