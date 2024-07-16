@@ -176,25 +176,15 @@ class NodeManager {
     this.handlers.push({row: newRow, handler});
     this.htmlElement.appendChild(newRow.element);
 
-    this.initializeHandler(handler);
+    // Moved initialization to Handler constructor
+    // this.initializeHandler(handler);
     
     this.updateNodeHeight(true);
     this.initializeSortable();
     initializeDragAndResize(this);
     
-    // TODOa: this.updateFrameInfo(handler.element);
     // TODOa: this.renumberAllHandlers();
     updateAllHandlersFrameInfo(this);
-  }
-
-  initializeHandler(handler) {
-    if (!handler.element || !handler.element.style) {
-      out("Handler or handler.style is undefined", "error");
-      return;
-    }
-    handler.updateFrameInfoInputs(this.properties);
-    handler.updateHandlerDisplay();
-    // TODOa: this.setupHandlerEventListeners(handler);
   }
 
   addHandler() {
