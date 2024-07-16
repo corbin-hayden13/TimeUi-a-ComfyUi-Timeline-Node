@@ -1,4 +1,4 @@
-import { updateAllHandlersFrameInfo, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup } from "../ui-elements/index.js";
+import { updateAllHandlersFrameInfo, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup, handlerIDToIndex } from "../ui-elements/index.js";
 import { Popup, TimeRuler, Handler, ImageRow } from "../ui-elements/index.js";
 import { initializeDragAndResize } from "../utils/EventListeners.js";
 import { ObjectStore } from "./ObjectStore.js";
@@ -50,13 +50,6 @@ class NodeManager {
     }
     this.handlers = [];
 
-    // Setting HTML containers
-    this.htmlElement = $el("div.timeline-container", { 
-      id: "images-rows-container" 
-    });
-    this.timeRuler = new TimeRuler(this.properties);
-    this.popup = new Popup();  // Using one popup and moving to the handlers that need them
-
     // HTML Container Properties
     this.baseHeight = baseHeight;
     this.rowHeight = rowHeight;
@@ -66,6 +59,13 @@ class NodeManager {
     this.defaultHandlerWidth = 200;
     this.minHandlerWidth = 1;
     this.maxHandlers = 20;
+
+    // Setting HTML containers
+    this.htmlElement = $el("div.timeline-container", { 
+      id: "images-rows-container" 
+    });
+    this.timeRuler = new TimeRuler(this.properties);
+    this.popup = new Popup(this.popupBuffer);  // Using one popup and moving to the handlers that need them
 
     // HTML Component Objects and References
     this.currentHandler = null;
@@ -163,8 +163,7 @@ class NodeManager {
     this.node.addCustomWidget(timelineWidget);
     this.node.onRemoved = function() { timelineWidget.inputEl.remove(); };
   }
-
-  // TODO: Finish addImageRow
+  
   addImageRow() {
     const newRow = new ImageRow({ rowIndex: this.htmlElement.querySelectorAll(".timeline-row").length + 1 });
     const handler = newRow.addHandler({ defaultHandlerWidth: this.defaultHandlerWidth });
@@ -177,7 +176,7 @@ class NodeManager {
     this.handlers.push({row: newRow, handler});
     this.htmlElement.appendChild(newRow.element);
 
-    // TODOa: this.initializeHandler(handler.element);
+    this.initializeHandler(handler);
     
     this.updateNodeHeight(true);
     this.initializeSortable();
@@ -186,6 +185,16 @@ class NodeManager {
     // TODOa: this.updateFrameInfo(handler.element);
     // TODOa: this.renumberAllHandlers();
     updateAllHandlersFrameInfo(this);
+  }
+
+  initializeHandler(handler) {
+    if (!handler.element || !handler.element.style) {
+      out("Handler or handler.style is undefined", "error");
+      return;
+    }
+    handler.updateFrameInfoInputs(this.properties);
+    handler.updateHandlerDisplay();
+    // TODOa: this.setupHandlerEventListeners(handler);
   }
 
   addHandler() {
@@ -290,6 +299,22 @@ class NodeManager {
            event.clientY >= rect.top && event.clientY <= rect.bottom;
   }
 
+  /**
+   * elemObject is an Object, not an HTML element
+   */
+  mouseEnteredHandlerElement(event, handler) {
+    clearTimeout(this.popupCloseTimeout);
+      if (handler.element.offsetWidth < handler.handlerThreshold) {
+        this.showPopup(event, handler.element);
+      }
+  }
+
+  mouseLeftHandlerElement(event) {
+    if (!this.isMouseInPopupOrTolerance(event)) {
+      scheduleHidePopup(event, this);
+  }
+  }
+
   selectHandler(handler) {
     if (this.selectedHandler && this.selectedHandler !== handler) {
       this.selectedHandler.classList.remove('active');
@@ -300,7 +325,6 @@ class NodeManager {
     }
   }
 
-  // TODO: Finish addHandler
   addHandler(handler) {
     const timeline = handler.closest('.timeline');
     const handlers = Array.from(timeline.querySelectorAll('.timeline-handler'));
@@ -310,12 +334,11 @@ class NodeManager {
       return;
     }
 
-    const newHandler = new Handler({ defaultHandlerWidth: this.defaultHandlerWidth, handlerThreshold: this.handlerThreshold });
+    const newHandler = new Handler({ defaultHandlerWidth: this.defaultHandlerWidth, handlerThreshold: this.handlerThreshold, nodeMgrProperties: this.properties });
     const newLeft = newHandler.calculateNewHandlerPosition(handlers);
     newHandler.element.style.left = `${newLeft}px`;
     timeline.appendChild(newHandler.element);
 
-    // TODOa: this.setupHandlerEventListeners(newHandler.element);
     // TODOa: this.updateAllHandlersFrameInfo();
     // TODOa: this.renumberAllHandlers();
     // TODOa: this.selectHandler(newHandler.element);
@@ -340,8 +363,6 @@ class NodeManager {
 
       value = Math.max(parseFloat(input.min) || 0, Math.min(value, this.properties.number_animation_frames));
       safeSetValue(input, value);
-
-      // TODO: this.updateHandlerFromInput(input, value, handler === this.currentHandler);
     }, timeoutInMiliseconds);
 
     updateHandler();

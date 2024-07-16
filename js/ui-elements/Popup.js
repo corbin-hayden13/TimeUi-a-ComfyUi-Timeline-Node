@@ -1,12 +1,13 @@
 import { SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME } from '../utils/index.js';
 
 class Popup {
-    constructor() {
+    constructor(popupBuffer) {
         this.element = this.createElement();
         this.isVisible = false;
         this.currentHandler = null;
         this.callbacks = {};
         this.setupEventListeners();
+        this.popupBuffer = popupBuffer;
     }
 
     createElement() {
@@ -103,7 +104,12 @@ class Popup {
         this.currentHandler = null;
     }
 
-    updatePosition(position) {
+    updatePosition(element) {
+        const rect = element.getBoundingClientRect();
+        const position = {
+            left: rect.left + (rect.width / 2),
+            top: rect.top - this.popupBuffer
+        };
         this.element.style.left = `${position.left - this.element.offsetWidth / 2}px`;
         this.element.style.top = `${position.top - this.element.offsetHeight}px`;
     }
