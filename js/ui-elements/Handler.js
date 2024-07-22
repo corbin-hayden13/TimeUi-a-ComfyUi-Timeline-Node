@@ -1,14 +1,25 @@
 // Handler.js
 import { SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, out, safeSetValue, uuid, debounce } from '../utils/index.js';
 
-export function handlerIDToIndex(rowsAndHandlers, handlerElem) {
+function handlerIDToIndex(rowsAndHandlers, handlerElem) {
     for (let a = 0; a < rowsAndHandlers.length; a++) {
         if (rowsAndHandlers[a].handler.id === handlerElem.id) return a;
     }
     return -1;
 }
 
-export class Handler {
+function renumberAllHandlersAndRows(nodeMgrElement) {
+    nodeMgrElement.querySelectorAll(".timeline-row").forEach((row, rowIndex) => {
+        row.querySelector('.timeline').querySelectorAll(".timeline-handler").forEach((handler, handlerIndex) => {
+            const imageNumber = handler.querySelector('.image-number');
+            if (imageNumber) {
+                imageNumber.textContent = `IMAGE ${rowIndex}.${handlerIndex + 1}`;
+            }
+        });
+    });
+}
+
+class Handler {
     constructor(options = {}) {
         this.defaultHandlerWidth = options.defaultHandlerWidth || 200;
         this.handlerThreshold = options.handlerThreshold || 150;
@@ -270,3 +281,5 @@ export class Handler {
         return Math.min(newLeft, maxLeft);
     }
 }
+
+export { handlerIDToIndex, renumberAllHandlersAndRows, Handler };

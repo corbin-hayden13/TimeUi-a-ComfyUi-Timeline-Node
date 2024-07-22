@@ -1,4 +1,4 @@
-import { updateAllHandlersFrameInfo, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup, handlerIDToIndex } from "../ui-elements/index.js";
+import { updateAllHandlersFrameInfo, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup, renumberAllHandlersAndRows, handlerIDToIndex } from "../ui-elements/index.js";
 import { Popup, TimeRuler, Handler, ImageRow } from "../ui-elements/index.js";
 import { initializeDragAndResize } from "../utils/EventListeners.js";
 import { ObjectStore } from "./ObjectStore.js";
@@ -175,15 +175,12 @@ class NodeManager {
 
     this.handlers.push({row: newRow, handler});
     this.htmlElement.appendChild(newRow.element);
-
-    // Moved initialization to Handler constructor
-    // this.initializeHandler(handler);
     
     this.updateNodeHeight(true);
     this.initializeSortable();
     initializeDragAndResize(this);
     
-    // TODOa: this.renumberAllHandlers();
+    renumberAllHandlersAndRows(this.htmlElement);
     updateAllHandlersFrameInfo(this);
   }
 
