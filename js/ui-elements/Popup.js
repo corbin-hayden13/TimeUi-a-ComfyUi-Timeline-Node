@@ -54,7 +54,7 @@ class Popup {
         if (addTimeframeButton) {
             addTimeframeButton.onclick = (e) => {
                 e.stopPropagation();
-                if (this.callbacks.onAddTimeframe) this.callbacks.onAddTimeframe(this.currentHandler);
+                if (this.callbacks.onAddTimeframe) this.callbacks.onAddTimeframe();
             };
         }
 
@@ -92,8 +92,8 @@ class Popup {
 
     show(handlerElem, position) {
         this.isVisible = true;
-        this.currentHandler = handler;
-        this.updateContent(handler);
+        this.currentHandler = handlerElem;
+        this.updateContent(handlerElem);
         this.updatePosition(position);
         this.element.style.display = 'block';
     }
@@ -114,16 +114,16 @@ class Popup {
         this.element.style.top = `${position.top - this.element.offsetHeight}px`;
     }
 
-    updateContent(handler) {
+    updateContent(handlerElem) {
         const imageNumber = this.element.querySelector('.image-number');
         const frameInfoInput = this.element.querySelector('.frame-info-input');
         const frameStartInput = this.element.querySelector('.frame-start-input');
         const frameEndInput = this.element.querySelector('.frame-end-input');
 
-        const handlerImageNumber = handler.querySelector('.image-number');
-        const handlerFrameInfoInput = handler.querySelector('.frame-info-input');
-        const handlerFrameStartInput = handler.querySelector('.frame-start-input');
-        const handlerFrameEndInput = handler.querySelector('.frame-end-input');
+        const handlerImageNumber = handlerElem.querySelector('.image-number');
+        const handlerFrameInfoInput = handlerElem.querySelector('.frame-info-input');
+        const handlerFrameStartInput = handlerElem.querySelector('.frame-start-input');
+        const handlerFrameEndInput = handlerElem.querySelector('.frame-end-input');
 
         if (imageNumber && handlerImageNumber) {
             imageNumber.textContent = handlerImageNumber.textContent;

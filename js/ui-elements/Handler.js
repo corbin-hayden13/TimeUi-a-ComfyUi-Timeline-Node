@@ -19,6 +19,16 @@ function renumberAllHandlersAndRows(nodeMgrElement) {
     });
 }
 
+function calculateNewHandlerPosition(nodeMgrHandlers) {
+    let newLeft = 0;
+    if (nodeMgrHandlers.length > 0) {
+        const lastHandler = nodeMgrHandlers[nodeMgrHandlers.length - 1];
+        newLeft = lastHandler.element.offsetLeft + lastHandler.element.offsetWidth;
+    }
+    const maxLeft = nodeMgrHandlers[0].element.closest('.timeline').clientWidth - nodeMgrHandlers[0].defaultHandlerWidth;
+    return Math.min(newLeft, maxLeft);
+}
+
 class Handler {
     constructor(options = {}) {
         this.defaultHandlerWidth = options.defaultHandlerWidth || 200;
@@ -270,16 +280,6 @@ class Handler {
             imageNumber.textContent = `IMAGE ${number}`;
         }
     }
-
-    calculateNewHandlerPosition(handlerElems) {
-        let newLeft = 0;
-        if (handlerElems.length > 0) {
-            const lastHandler = handlerElems[handlerElems.length - 1];
-            newLeft = lastHandler.offsetLeft + lastHandler.offsetWidth;
-        }
-        const maxLeft = handlerElems[0].closest('.timeline').clientWidth - this.defaultHandlerWidth;
-        return Math.min(newLeft, maxLeft);
-    }
 }
 
-export { handlerIDToIndex, renumberAllHandlersAndRows, Handler };
+export { handlerIDToIndex, renumberAllHandlersAndRows, calculateNewHandlerPosition, Handler };

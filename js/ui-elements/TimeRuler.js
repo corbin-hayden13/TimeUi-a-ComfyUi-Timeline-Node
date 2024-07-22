@@ -1,42 +1,5 @@
 import { SVG_SHOW_CURVES } from "../utils/SVGConstants.js";
 
-function updateFrameInfo(nodeMgr, handler) {
-  const timelineContainer = handler.closest(".timeline");
-  const totalWidth = timelineContainer.clientWidth;
-  const handlerWidth = handler.clientWidth;
-  const handlerLeft = handler.offsetLeft;
-
-  const framesPerPixel = nodeMgr.node.properties.number_animation_frames / totalWidth;
-  const startFrame = Math.round(handlerLeft * framesPerPixel);
-  const endFrame = Math.round((handlerLeft + handlerWidth) * framesPerPixel);
-  const totalFrames = endFrame - startFrame;
-
-  const startSecond = (startFrame / nodeMgr.node.properties.frames_per_second).toFixed(2);
-  const endSecond = (endFrame / nodeMgr.node.properties.frames_per_second).toFixed(2);
-
-  const frameInfoElement = handler.querySelector('.frame-info');
-  const frameInfoInput = handler.querySelector('.frame-info-input');
-  const frameLabel = handler.querySelector('.frame-label');
-
-  if (frameInfoElement && frameInfoInput && frameLabel) {
-      frameInfoInput.value = nodeMgr.node.properties.time_format === 'Seconds' ? `${(totalFrames / nodeMgr.node.properties.frames_per_second).toFixed(2)}` : `${totalFrames}`;
-      frameLabel.textContent = nodeMgr.node.properties.time_format === 'Seconds' ? ' seconds' : ' frames';
-      
-      if (nodeMgr.node.properties.time_format === 'Seconds') {
-          frameInfoElement.textContent = `From ${startSecond}s to ${endSecond}s`;
-      } else {
-          frameInfoElement.textContent = `From ${startFrame} to ${endFrame} frames`;
-      }
-  }
-}
-  
-function updateAllHandlersFrameInfo(nodeMgr) {
-  const handlers = nodeMgr.htmlElement.querySelectorAll(".timeline-handler");
-  handlers.forEach(handler => {
-      updateFrameInfo(nodeMgr, handler);
-  });
-}
-
 function updateTimeRuler(nodeMgr, timeRuler) {
   // console.log('Updating time ruler with properties:', nodeMgr.node.properties);
   const numberOfFrames = nodeMgr.node.properties.number_animation_frames || 96;
@@ -174,4 +137,4 @@ class TimeRuler {
   }
 }
 
-export { updateTimeRuler, createTimeRuler, updateFrameInfo, updateAllHandlersFrameInfo, TimeRuler };
+export { updateTimeRuler, createTimeRuler, TimeRuler };

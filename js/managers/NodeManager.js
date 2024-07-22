@@ -1,4 +1,4 @@
-import { updateAllHandlersFrameInfo, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup, renumberAllHandlersAndRows, handlerIDToIndex } from "../ui-elements/index.js";
+import { updateAllHandlersFrameInfo, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup, renumberAllHandlersAndRows, calculateNewHandlerPosition, handlerIDToIndex } from "../ui-elements/index.js";
 import { Popup, TimeRuler, Handler, ImageRow } from "../ui-elements/index.js";
 import { initializeDragAndResize } from "../utils/EventListeners.js";
 import { ObjectStore } from "./ObjectStore.js";
@@ -19,7 +19,9 @@ function onWidgetChange(widget) {
 
   if (this.timeRuler) {
     this.timeRuler.updateTimeRuler(this.properties);
-    updateAllHandlersFrameInfo(this);
+    this.handlers.forEach(handler => {
+      handler.updateFrameInfoInputs(this.properties);
+    });
   }
 }
 
@@ -118,6 +120,7 @@ class NodeManager {
     this.initializeSortable = this.initializeSortable.bind(this);
     this.isMouseOverHandler = this.isMouseOverHandler.bind(this);
     this.selectHandler = this.selectHandler.bind(this);
+    this.addHandler = this.addHandler.bind(this);
   }
 
   onNodeCreated() {
@@ -185,7 +188,24 @@ class NodeManager {
   }
 
   addHandler() {
+    const timeline = currentHandler.closest('.timeline');
 
+    if (Array.from(timeline.querySelectorAll('.timeline-handler')).length >= this.maxHandlers) {
+      out("Maximum number of handlers reached", "warn");
+      return;
+    }
+
+    const newHandler = new Handler({ defaultHandlerWidth: this.defaultHandlerWidth });
+    this.handlers.push(newHandler);
+    const newLeft = calculateNewHandlerPosition(this.handlers);
+    newHandler.element.style.left = `${newLeft}px`;
+    timeline.appendChild(newHandler.element);
+
+    this.handlers.forEach(handler => { // Replaces updateAllHandlersFrameInfo
+      handler.updateFrameInfoInputs(this.properties);
+    });
+    renumberAllHandlersAndRows(this.htmlElement);
+    this.selectHandler(newHandler.element);
   }
 
   // Only called in constructor, no need to bind
@@ -312,25 +332,6 @@ class NodeManager {
     }
   }
 
-  addHandler(handler) {
-    const timeline = handler.closest('.timeline');
-    const handlers = Array.from(timeline.querySelectorAll('.timeline-handler'));
-
-    if (handlers.length >= this.maxHandlers) {
-      out("Maximum number of handlers reached", "warn");
-      return;
-    }
-
-    const newHandler = new Handler({ defaultHandlerWidth: this.defaultHandlerWidth, handlerThreshold: this.handlerThreshold, nodeMgrProperties: this.properties });
-    const newLeft = newHandler.calculateNewHandlerPosition(handlers);
-    newHandler.element.style.left = `${newLeft}px`;
-    timeline.appendChild(newHandler.element);
-
-    // TODOa: this.updateAllHandlersFrameInfo();
-    // TODOa: this.renumberAllHandlers();
-    // TODOa: this.selectHandler(newHandler.element);
-  }
-
   handleInputChange(input, timeoutInMiliseconds=50) {
     if (!input) {
       console.warn('Input is null in handleInputChange');
@@ -356,6 +357,15 @@ class NodeManager {
   }
 
   /** Popup methods */
+  setupPopupCallbacks() {
+    this.popup.setCallbacks({
+      onAddtimeframe: () => this.addHandler(),
+      // onRemoveTimeframe: (handlerElem) => this.removeHandler(handlerElem),
+      // onInputChange: (input, handlerElem) => this.handlePopupInputChange(input, handlerElem),
+      // onInputBlur: (input, handlerElem) => this.handlePopupInputBlur(input, handlerElem)
+    });
+  }
+
   showPopup(event, handlerElem) {
     if (this.currentPopupHandler !== handlerElem) {
       scheduleHidePopup(event, this);
