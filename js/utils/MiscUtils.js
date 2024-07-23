@@ -62,4 +62,20 @@ function safeSetValue(input, value) {
     input.onchange = origOnChange;
 }
 
-export { out, uuid, loadCSS, debounce, safeSetValue };
+function removeAtIndex(elements, index) {
+    if (index > -1 && index < this.length) {
+        // Create a new list excluding the item at the specified index
+        return {
+            newList: elements.slice(0, index).concat(elements.slice(index + 1)),
+            removedElement: elements[index]
+        };
+    }
+    else {
+        return {
+            newList: elements,
+            removedElement: null
+        }
+    }
+}
+
+export { out, uuid, loadCSS, debounce, safeSetValue, removeAtIndex };

@@ -1,11 +1,11 @@
-import { updateAllHandlersFrameInfo, renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup, renumberAllHandlersAndRows, calculateNewHandlerPosition, handlerIDToIndex } from "../ui-elements/index.js";
+import { renumberImageRows, removeImageRow, get_position_style, scheduleHidePopup, renumberAllHandlersAndRows, calculateNewHandlerPosition, handlerIDToIndex } from "../ui-elements/index.js";
 import { Popup, TimeRuler, Handler, ImageRow } from "../ui-elements/index.js";
 import { initializeDragAndResize } from "../utils/EventListeners.js";
 import { ObjectStore } from "./ObjectStore.js";
 import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
 import { ComfyWidgets } from "../../../scripts/widgets.js";
-import { out, uuid, debounce, safeSetValue } from "../utils/MiscUtils.js";
+import { out, uuid, debounce, safeSetValue, removeAtIndex } from "../utils/MiscUtils.js";
 
 // We don't need to add the docListeners more than once, so this flag stops multiple adds
 let docListenersAdded = false;
@@ -184,7 +184,9 @@ class NodeManager {
     initializeDragAndResize(this);
     
     renumberAllHandlersAndRows(this.htmlElement);
-    updateAllHandlersFrameInfo(this);
+    this.handlers.forEach(handler => { // Replaces updateAllHandlersFrameInfo
+      handler.updateFrameInfoInputs(this.properties);
+    });
   }
 
   addHandler() {
@@ -206,6 +208,18 @@ class NodeManager {
     });
     renumberAllHandlersAndRows(this.htmlElement);
     this.selectHandler(newHandler.element);
+  }
+
+  removeHandler(handlerElem) {
+    if (handlers.length > 1) {
+      const { newList, removedElement } = removeAtIndex(this.handlers, handlerIDToIndex(this.handlers, handlerElem));
+      this.handlers = newList;
+      removedElement.element.remove();
+      this.handlers.forEach(handler => { // Replaces updateAllHandlersFrameInfo
+        handler.updateFrameInfoInputs(this.properties);
+      });
+      renumberAllHandlersAndRows(this.htmlElement);
+    }
   }
 
   // Only called in constructor, no need to bind
@@ -360,7 +374,7 @@ class NodeManager {
   setupPopupCallbacks() {
     this.popup.setCallbacks({
       onAddtimeframe: () => this.addHandler(),
-      // onRemoveTimeframe: (handlerElem) => this.removeHandler(handlerElem),
+      onRemoveTimeframe: (handlerElem) => this.removeHandler(handlerElem),
       // onInputChange: (input, handlerElem) => this.handlePopupInputChange(input, handlerElem),
       // onInputBlur: (input, handlerElem) => this.handlePopupInputBlur(input, handlerElem)
     });

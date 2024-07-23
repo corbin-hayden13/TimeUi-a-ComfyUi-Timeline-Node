@@ -1,9 +1,9 @@
 // Handler.js
 import { SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, out, safeSetValue, uuid, debounce } from '../utils/index.js';
 
-function handlerIDToIndex(rowsAndHandlers, handlerElem) {
-    for (let a = 0; a < rowsAndHandlers.length; a++) {
-        if (rowsAndHandlers[a].handler.id === handlerElem.id) return a;
+function handlerIDToIndex(nodeMgrHandlers, handlerElem) {
+    for (let a = 0; a < nodeMgrHandlers.length; a++) {
+        if (nodeMgrHandlers[a].id === handlerElem.id) return a;
     }
     return -1;
 }
